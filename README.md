@@ -1,3 +1,1 @@
-# personaliza
-# noscasamos-aleyfabi
 # cabinafotograficacosmocam
