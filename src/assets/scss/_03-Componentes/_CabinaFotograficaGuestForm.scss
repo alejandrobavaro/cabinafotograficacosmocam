@@ -1,0 +1,174 @@
+/* =============================================
+   GUEST FORM - ESTILOS FUTURISTAS
+   ============================================= */
+
+   .guest-form-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 20, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 16px;
+    box-sizing: border-box;
+    backdrop-filter: blur(5px);
+  }
+  
+  .guest-form-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(100, 65, 255, 0.3);
+    box-shadow: 0 0 30px rgba(100, 65, 255, 0.3);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #6400ff, #00f0ff, #ff00ff);
+    }
+  }
+  
+  .guest-form-header {
+    margin-bottom: 2rem;
+  }
+  
+  .guest-form-title {
+    color: #00f0ff;
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  }
+  
+  .guest-form-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(100, 65, 255, 0.5), transparent);
+    margin: 1rem auto;
+    width: 80%;
+  }
+  
+  .guest-form-subtitle {
+    color: #a0a0ff;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    letter-spacing: 1px;
+  }
+  
+  .guest-form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+  
+  .form-label {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: #00f0ff;
+    margin-bottom: 0.8rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .form-icon {
+    color: #ff00ff;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(20, 20, 40, 0.7);
+    border: 1px solid rgba(100, 65, 255, 0.5);
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #e0e0ff;
+    transition: all 0.3s ease;
+    font-family: 'Rajdhani', sans-serif;
+    
+    &:focus {
+      outline: none;
+      border-color: #00f0ff;
+      box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+    }
+    
+    &::placeholder {
+      color: rgba(160, 160, 255, 0.5);
+      font-family: 'Rajdhani', sans-serif;
+    }
+  }
+  
+  .guest-form-submit {
+    background: linear-gradient(135deg, #6400ff 0%, #00f0ff 100%);
+    color: #0a0a12;
+    border: none;
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(100, 65, 255, 0.5);
+    
+    &:hover:not(:disabled) {
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
+      transform: translateY(-2px);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      background: linear-gradient(135deg, rgba(100, 65, 255, 0.7) 0%, rgba(0, 240, 255, 0.7) 100%);
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .guest-form-content {
+      padding: 2.5rem;
+      max-width: 500px;
+    }
+    
+    .guest-form-title {
+      font-size: 1.8rem;
+    }
+    
+    .guest-form-subtitle {
+      font-size: 1rem;
+    }
+    
+    .form-label {
+      font-size: 0.9rem;
+    }
+    
+    .guest-form-submit {
+      padding: 1.2rem;
+      font-size: 1.1rem;
+    }
+  }

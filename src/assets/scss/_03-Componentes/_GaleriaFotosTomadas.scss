@@ -1,0 +1,307 @@
+/* ==========================================================================
+   GALERÍA FUTURISTA - Mobile First
+   ========================================================================== */
+
+   .galeria-fotos {
+    padding: 2rem 0;
+    background: rgba(15, 15, 25, 0.8);
+    margin: 1rem;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(100, 65, 255, 0.3);
+    box-shadow: 0 0 30px rgba(100, 65, 255, 0.2);
+    transition: all 0.5s ease;
+  
+    &.fullscreen-mode {
+      margin: 0;
+      border-radius: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(100, 65, 255, 0.8),
+        rgba(0, 240, 255, 0.8),
+        rgba(100, 65, 255, 0.8),
+        transparent);
+      animation: scanline 3s linear infinite;
+    }
+  }
+  
+  .galeria-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 2;
+    
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      color: #00f0ff;
+      margin-bottom: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+    }
+    
+    p {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem;
+      color: #c0c0ff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+  }
+  
+  .galeria-slider {
+    padding: 0 1rem;
+    position: relative;
+    
+    .slick-slide {
+      padding: 0 10px;
+      outline: none;
+    }
+    
+    .slick-dots {
+      bottom: -30px;
+      
+      li button {
+        &::before {
+          color: #a0a0ff;
+          font-size: 10px;
+          opacity: 0.5;
+          transition: all 0.3s ease;
+        }
+        
+        &:hover::before {
+          color: #00f0ff;
+        }
+      }
+      
+      li.slick-active button::before {
+        color: #00f0ff;
+        opacity: 1;
+        text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+      }
+    }
+    
+    .slick-arrow {
+      z-index: 3;
+      
+      &::before {
+        font-size: 30px;
+        color: #00f0ff;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        opacity: 0.8;
+        transition: all 0.3s ease;
+      }
+      
+      &:hover::before {
+        opacity: 1;
+        color: #ff00ff;
+      }
+    }
+  }
+  
+  .loading-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+  
+  .loading-card {
+    flex: 1;
+    max-width: calc(33.333% - 1rem);
+  }
+  
+  .loading-placeholder {
+    height: 200px;
+    background: rgba(30, 30, 50, 0.6);
+    border: 1px solid rgba(100, 65, 255, 0.3);
+    border-radius: 8px;
+  }
+  
+  .foto-container {
+    height: 220px;
+    margin: 0 5px;
+    perspective: 1000px;
+  }
+  
+  .foto-item {
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: all 0.5s ease;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    
+    &:hover {
+      transform: translateY(-10px) rotateX(5deg);
+      box-shadow: 0 15px 30px rgba(100, 65, 255, 0.4);
+      
+      .foto-overlay {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .foto-hologram-effect {
+        opacity: 0.3;
+      }
+    }
+  }
+  
+  .foto-imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    filter: contrast(1.1) brightness(1.05);
+    transition: all 0.5s ease;
+  }
+  
+  .foto-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(10, 10, 30, 0.9));
+    padding: 1rem 0.5rem;
+    opacity: 0.8;
+    transform: translateY(10px);
+    transition: all 0.5s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .foto-categoria {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 0.9rem;
+    color: #00f0ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 240, 255, 0.7);
+  }
+  
+  .foto-id {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    color: #ff00ff;
+    text-shadow: 0 0 5px rgba(255, 0, 255, 0.7);
+  }
+  
+  .foto-hologram-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(100, 65, 255, 0.1) 0%,
+      rgba(0, 240, 255, 0.1) 50%,
+      rgba(100, 65, 255, 0.1) 100%
+    );
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  
+  /* Efectos de animación */
+  @keyframes scanline {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  @keyframes neon-pulse {
+    0% { box-shadow: 0 0 10px rgba(100, 65, 255, 0.3); }
+    50% { box-shadow: 0 0 20px rgba(100, 65, 255, 0.7); }
+    100% { box-shadow: 0 0 10px rgba(100, 65, 255, 0.3); }
+  }
+  
+  .neon-pulse {
+    animation: neon-pulse 2s infinite ease-in-out;
+  }
+  
+  /* ==========================================================================
+     Media Queries Progresivas
+     ========================================================================== */
+  
+  @media (min-width: 600px) {
+    .galeria-fotos {
+      margin: 1.5rem auto;
+      padding: 2.5rem 0;
+      max-width: 90%;
+  
+      .galeria-header {
+        h2 {
+          font-size: 2.2rem;
+        }
+        
+        p {
+          font-size: 1.3rem;
+        }
+      }
+  
+      .foto-container {
+        height: 250px;
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .galeria-fotos {
+      max-width: 85%;
+      
+      .galeria-slider {
+        .slick-slide {
+          padding: 0 15px;
+        }
+      }
+  
+      .foto-container {
+        height: 280px;
+      }
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .galeria-fotos {
+      max-width: 80%;
+      padding: 3rem 0;
+  
+      .galeria-header {
+        h2 {
+          font-size: 2.5rem;
+        }
+      }
+  
+      .foto-container {
+        height: 320px;
+      }
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .galeria-fotos {
+      max-width: 1100px;
+  
+      .foto-container {
+        height: 350px;
+      }
+    }
+  }

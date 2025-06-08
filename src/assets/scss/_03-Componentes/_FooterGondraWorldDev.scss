@@ -1,0 +1,163 @@
+/* ==========================================================================
+   FOOTER DEV FUTURISTA - Mobile First
+   ========================================================================== */
+
+   .tech-trademark-footer {
+    text-align: center;
+    margin: 0;
+    padding: 1.5rem 0;
+    background: rgba(10, 10, 25, 0.9);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .tech-scanline-divider {
+    height: 2px;
+    width: 100%;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(100, 65, 255, 0.8),
+      rgba(0, 240, 255, 0.8),
+      rgba(100, 65, 255, 0.8),
+      transparent);
+    background-size: 200% 100%;
+    animation: techScanline 6s linear infinite;
+    margin-bottom: 1.5rem;
+  }
+  
+  .tech-dev-container {
+    .tech-dev-link {
+      text-decoration: none;
+      
+      &:hover {
+        .tech-dev-message, .tech-dev-signature {
+          text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        }
+        
+        .tech-stack-item {
+          transform: translateY(-5px);
+          box-shadow: 0 5px 15px rgba(100, 65, 255, 0.3);
+        }
+      }
+    }
+    
+    .tech-dev-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 0 1.5rem;
+    }
+    
+    .tech-dev-message {
+      font-family: 'Orbitron', sans-serif;
+      color: #00f0ff;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s ease;
+      
+      i {
+        margin: 0 0.5rem;
+        color: #ff00ff;
+      }
+    }
+    
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0;
+      
+      .tech-stack-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        background: rgba(30, 30, 60, 0.6);
+        border-radius: 8px;
+        border: 1px solid rgba(100, 65, 255, 0.4);
+        transition: all 0.3s ease;
+        
+        .tech-icon {
+          font-size: 2rem;
+          color: #00f0ff;
+          margin-bottom: 0.5rem;
+        }
+        
+        span {
+          font-family: 'Rajdhani', sans-serif;
+          color: #c0c0ff;
+          font-size: 0.8rem;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        }
+      }
+    }
+    
+    .tech-dev-signature {
+      font-family: 'Orbitron', sans-serif;
+      color: #a0a0ff;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      transition: all 0.3s ease;
+      
+      i {
+        margin: 0 0.5rem;
+        color: #ff00ff;
+      }
+    }
+  }
+  
+  /* ==========================================================================
+     Media Queries Progresivas
+     ========================================================================== */
+  
+  @media (min-width: 768px) {
+    .tech-trademark-footer {
+      padding: 2rem 0;
+    }
+    
+    .tech-dev-container {
+      .tech-dev-message {
+        font-size: 1.2rem;
+      }
+      
+      .tech-stack {
+        gap: 1.5rem;
+        
+        .tech-stack-item {
+          padding: 1rem 1.5rem;
+          
+          .tech-icon {
+            font-size: 2.5rem;
+          }
+          
+          span {
+            font-size: 0.9rem;
+          }
+        }
+      }
+      
+      .tech-dev-signature {
+        font-size: 1.1rem;
+      }
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .tech-dev-container {
+      .tech-dev-message {
+        font-size: 1.4rem;
+      }
+      
+      .tech-stack {
+        .tech-stack-item {
+          .tech-icon {
+            font-size: 3rem;
+          }
+        }
+      }
+    }
+  }

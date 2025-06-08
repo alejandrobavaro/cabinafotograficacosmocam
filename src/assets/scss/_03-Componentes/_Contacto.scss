@@ -1,0 +1,299 @@
+/* ==========================================================================
+   COMPONENTE CONTACTO FUTURISTA - Mobile First
+   ========================================================================== */
+
+   .tech-contact-section {
+    background: rgba(15, 15, 30, 0.8);
+    padding: 1.5rem 0;
+    margin: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 65, 255, 0.3);
+    box-shadow: 0 0 30px rgba(100, 65, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+  
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(100, 65, 255, 0.8),
+        rgba(0, 240, 255, 0.8),
+        transparent);
+      animation: scanline 5s linear infinite;
+    }
+  }
+  
+  .tech-contact-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .tech-brand-social {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  
+    .tech-brand {
+      text-align: center;
+      padding: 1rem 0;
+      position: relative;
+      
+      .tech-logo-img {
+        max-width: 180px;
+        height: auto;
+        transition: all 0.5s ease;
+        filter: drop-shadow(0 0 15px rgba(100, 65, 255, 0.5));
+        position: relative;
+        z-index: 2;
+      }
+  
+      .tech-logo-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(100,65,255,0.4) 0%, transparent 70%);
+        z-index: 1;
+        animation: pulse 4s infinite ease-in-out;
+      }
+    }
+  
+    .tech-social {
+      .tech-social-title {
+        font-family: 'Orbitron', sans-serif;
+        color: #00f0ff;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+  
+        i {
+          color: #ff00ff;
+          font-size: 1.2rem;
+          text-shadow: 0 0 8px rgba(255, 0, 255, 0.7);
+        }
+      }
+  
+      .tech-social-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+  
+        .tech-social-link {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          text-decoration: none;
+          padding: 1rem 0.5rem;
+          border-radius: 8px;
+          background: rgba(30, 30, 60, 0.6);
+          border: 1px solid rgba(100, 65, 255, 0.4);
+          transition: all 0.3s ease;
+          color: #c0c0ff;
+          position: relative;
+          overflow: hidden;
+  
+          i {
+            font-size: 1.8rem;
+            color: #00f0ff;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+          }
+  
+          span {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+  
+          .link-hover-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(100,65,255,0.2), rgba(0,240,255,0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+          }
+  
+          &:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(100, 65, 255, 0.3);
+            background: rgba(40, 40, 80, 0.8);
+            
+            i {
+              color: #ff00ff;
+              transform: scale(1.1);
+              text-shadow: 0 0 12px rgba(255, 0, 255, 0.7);
+            }
+  
+            .link-hover-glow {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .tech-banner {
+    margin-top: 1rem;
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    position: relative;
+  
+    .tech-banner-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: all 0.5s ease;
+    }
+  
+    .banner-scanline {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: rgba(0, 240, 255, 0.7);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.9);
+      animation: scanline-vertical 4s infinite linear;
+      z-index: 3;
+    }
+  
+    &:hover .tech-banner-img {
+      transform: scale(1.02);
+    }
+  }
+  
+  /* Animaciones */
+  @keyframes scanline {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  
+  @keyframes scanline-vertical {
+    0% { top: -10px; }
+    100% { top: 110%; }
+  }
+  
+  @keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+  }
+  
+  /* ==========================================================================
+     Media Queries Progresivas
+     ========================================================================== */
+  
+  @media (min-width: 600px) {
+    .tech-contact-section {
+      margin: 1.5rem auto;
+      max-width: 550px;
+      padding: 2rem 0;
+  
+      .tech-contact-container {
+        padding: 0 2rem;
+        gap: 2rem;
+  
+        .tech-brand-social {
+          flex-direction: row;
+          align-items: center;
+          gap: 2rem;
+  
+          .tech-brand {
+            .tech-logo-img {
+              max-width: 200px;
+            }
+          }
+  
+          .tech-social {
+            flex: 1;
+            
+            .tech-social-grid {
+              grid-template-columns: repeat(3, 1fr);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .tech-contact-section {
+      max-width: 700px;
+      padding: 2.5rem 0;
+  
+      .tech-brand-social {
+        .tech-social {
+          .tech-social-title {
+            font-size: 1.5rem;
+            
+            i {
+              font-size: 1.4rem;
+            }
+          }
+  
+          .tech-social-link {
+            padding: 1.2rem 0.5rem;
+            
+            i {
+              font-size: 2rem;
+            }
+            
+            span {
+              font-size: 0.9rem;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .tech-contact-section {
+      max-width: 850px;
+  
+      .tech-brand-social {
+        gap: 3rem;
+  
+        .tech-brand {
+          .tech-logo-img {
+            max-width: 220px;
+          }
+        }
+      }
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .tech-contact-section {
+      max-width: 1000px;
+    }
+  }

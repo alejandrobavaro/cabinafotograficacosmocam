@@ -1,0 +1,331 @@
+/* ==========================================================================
+   COMPONENTE FORMULARIO FUTURISTA - Mobile First
+   ========================================================================== */
+
+   .tech-form-section {
+    background: rgba(15, 15, 30, 0.8);
+    padding: 1.5rem 0;
+    margin: 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(100, 65, 255, 0.3);
+    box-shadow: 0 0 30px rgba(100, 65, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    max-width: 100%;
+  
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(0, 240, 255, 0.8),
+        rgba(100, 65, 255, 0.8),
+        transparent);
+      animation: scanline 5s linear infinite;
+    }
+  }
+  
+  .tech-form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .tech-form-title {
+    font-family: 'Orbitron', sans-serif;
+    color: #00f0ff;
+    text-align: center;
+    margin: 0 0 1rem;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    
+    i {
+      color: #ff00ff;
+      font-size: 1.2rem;
+      text-shadow: 0 0 8px rgba(255, 0, 255, 0.7);
+    }
+  }
+  
+  .tech-contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    
+    .tech-form-group {
+      position: relative;
+      
+      .input-glow {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(100, 65, 255, 0.1);
+        border-radius: 6px;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      
+      .tech-input, .tech-textarea {
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
+        border: 1px solid rgba(100, 65, 255, 0.5);
+        border-radius: 6px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1rem;
+        color: #e0e0ff;
+        transition: all 0.3s ease;
+        background: rgba(20, 20, 40, 0.7);
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+        z-index: 2;
+        letter-spacing: 1px;
+        
+        &:focus {
+          outline: none;
+          border-color: #00f0ff;
+          box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+          
+          ~ .input-glow {
+            opacity: 1;
+          }
+        }
+        
+        &::placeholder {
+          color: #a0a0ff;
+          opacity: 0.7;
+          text-transform: uppercase;
+          font-size: 0.9rem;
+        }
+      }
+      
+      .tech-textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+      
+      .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0a0ff;
+        z-index: 3;
+        font-size: 1.1rem;
+      }
+    }
+    
+    .tech-submit-btn {
+      background: linear-gradient(135deg, rgba(100,65,255,0.8), rgba(0,240,255,0.8));
+      color: #0a0a12;
+      border: none;
+      padding: 1rem;
+      border-radius: 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      z-index: 2;
+      
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 240, 255, 0.4);
+        
+        .btn-glow {
+          opacity: 0.6;
+        }
+      }
+      
+      i {
+        font-size: 1.2rem;
+      }
+      
+      .btn-glow {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+      }
+    }
+  }
+  
+  .booth-slider-container {
+    margin-top: 1.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(100, 65, 255, 0.4);
+    position: relative;
+  
+    .booth-slider {
+      .slider-item {
+        position: relative;
+        
+        .booth-photo {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+          display: block;
+        }
+  
+        .photo-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(100,65,255,0.1), rgba(0,240,255,0.1));
+        }
+        
+        .photo-scanline {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: rgba(255, 0, 255, 0.7);
+          box-shadow: 0 0 10px rgba(255, 0, 255, 0.9);
+          animation: scanline-vertical 4s infinite linear;
+          z-index: 3;
+        }
+      }
+  
+      .slick-dots {
+        bottom: 15px;
+        
+        li {
+          margin: 0 3px;
+          
+          button:before {
+            color: #a0a0ff;
+            opacity: 0.6;
+            font-size: 10px;
+          }
+          
+          &.slick-active button:before {
+            color: #00f0ff;
+            opacity: 1;
+            text-shadow: 0 0 5px rgba(0, 240, 255, 0.7);
+          }
+        }
+      }
+    }
+  }
+  
+  /* ==========================================================================
+     Media Queries Progresivas
+     ========================================================================== */
+  
+  @media (min-width: 600px) {
+    .tech-form-section {
+      margin: 1.5rem auto;
+      max-width: 550px;
+      padding: 2rem 0;
+  
+      .tech-form-container {
+        padding: 0 2rem;
+        gap: 2rem;
+  
+        .tech-form-title {
+          font-size: 1.5rem;
+        }
+        
+        .tech-submit-btn {
+          max-width: 250px;
+          margin: 0.5rem auto 0;
+        }
+        
+        .booth-slider-container {
+          .booth-slider {
+            .slider-item {
+              .booth-photo {
+                height: 250px;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .tech-form-section {
+      max-width: 700px;
+      padding: 2.5rem 0;
+  
+      .tech-contact-form {
+        .tech-form-group {
+          .tech-input, .tech-textarea {
+            padding: 1rem 1rem 1rem 3rem;
+            font-size: 1.1rem;
+          }
+          
+          .input-icon {
+            left: 1.2rem;
+            font-size: 1.3rem;
+          }
+          
+          .tech-textarea {
+            min-height: 150px;
+          }
+        }
+        
+        .tech-submit-btn {
+          padding: 1.2rem;
+          font-size: 1.1rem;
+        }
+      }
+      
+      .booth-slider-container {
+        .booth-slider {
+          .slider-item {
+            .booth-photo {
+              height: 300px;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .tech-form-section {
+      max-width: 800px;
+    }
+  }
+  
+  @media (min-width: 1200px) {
+    .tech-form-section {
+      max-width: 1000px;
+    }
+  }

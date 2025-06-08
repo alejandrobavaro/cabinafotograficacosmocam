@@ -1,0 +1,186 @@
+/* Contenedor principal optimizado para 412px */
+.public-container {
+  width: 100%;
+  max-width: 412px;
+  margin: 0 auto;
+  padding: 0;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+/* Estilo revista móvil first */
+.wedding-journal {
+  font-family: 'Cormorant Garamond', serif;
+  color: #333;
+  line-height: 1.5;
+  width: 100%;
+  padding: 0 0.5rem;
+}
+
+/* Contenedor de contenido ajustado */
+.journal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0;
+}
+
+/* Encabezado optimizado */
+.journal-header {
+  text-align: center;
+  padding: 0.5rem 0;
+
+  h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: #5a2d2d;
+    margin: 0.5rem 0;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+    color: #8c5e3d;
+    font-style: italic;
+    margin: 0;
+  }
+}
+
+/* Secciones de contenido */
+.journal-content > * {
+  width: 100%;
+}
+
+/* Separador visual */
+.lineaSeparador {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #812525, transparent);
+  margin: 1rem 0;
+}
+
+/* Contenedor botón cabina */
+.cabina-button-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+}
+
+/* Botón flotante optimizado */
+.cabina-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: #5a2d2d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  
+  &:hover {
+    background-color: #4a2525;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Media Queries progresivas */
+@media (min-width: 413px) {
+  .public-container {
+    max-width: none;
+    padding: 0 1rem;
+  }
+
+  .journal-header {
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+    }
+  }
+
+  .journal-content {
+    gap: 2rem;
+  }
+
+  .cabina-button {
+    width: 55px;
+    height: 55px;
+    
+    i {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+@media (min-width: 600px) {
+  .public-container {
+    padding: 0 1.5rem;
+  }
+
+  .journal-header {
+    h1 {
+      font-size: 2.2rem;
+    }
+  }
+
+  .cabina-button-container {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+
+  .cabina-button {
+    position: relative;
+    width: auto;
+    height: auto;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    gap: 0.5rem;
+    
+    i {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  .public-container {
+    max-width: 1000px;
+  }
+
+  .journal-header {
+    h1 {
+      font-size: 2.5rem;
+    }
+  }
+
+  .journal-content {
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .journal-header {
+    h1 {
+      font-size: 3rem;
+    }
+    
+    .subtitle {
+      font-size: 1.3rem;
+    }
+  }
+}
