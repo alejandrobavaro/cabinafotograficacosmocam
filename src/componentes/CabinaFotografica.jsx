@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Zap, Smile, Camera, User, Power, RefreshCw, Image } from 'react-feather';
+import { X, Zap, Smile, Camera, User, Power, RefreshCw, Image, Download, Printer, Share2 } from 'react-feather';
 import CabinaFotograficaTutorial from './CabinaFotograficaTutorial';
 import CabinaFotograficaGuestForm from './CabinaFotograficaGuestForm';
-import CabinaFotograficaGallery from './CabinaFotograficaGallery';
 import CabinaFotograficaAudio from './CabinaFotograficaAudio';
+import CabinaFotograficaGallery from './CabinaFotograficaGallery';
 import "../assets/scss/_03-Componentes/_CabinaFotografica.scss";
 
 export const FILTERS = [
@@ -63,7 +63,7 @@ const CONFIG = {
   PHOTO_DELAY: 1500
 };
 
-const CabinaFotografica = ({ fullscreenMode }) => {
+const CabinaFotografica = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
@@ -76,9 +76,10 @@ const CabinaFotografica = ({ fullscreenMode }) => {
   const [currentStep, setCurrentStep] = useState(null);
   const [subtitle, setSubtitle] = useState('');
   const [capturedPhotos, setCapturedPhotos] = useState([]);
-  const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const [showCollageModal, setShowCollageModal] = useState(false);
-  const [currentCollage, setCurrentCollage] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showMasks, setShowMasks] = useState(false);
 
   const [cameraState, setCameraState] = useState({
     isActive: true,
@@ -101,7 +102,6 @@ const CabinaFotografica = ({ fullscreenMode }) => {
   const resetLocalStorage = useCallback(() => {
     localStorage.removeItem('cabinaFotograficaFotos');
     setRecentPhotos([]);
-    setShowGalleryModal(false);
   }, []);
 
   const triggerEffect = useCallback(() => {
@@ -113,21 +113,10 @@ const CabinaFotografica = ({ fullscreenMode }) => {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        if (navigator.storage && navigator.storage.estimate) {
-          const { usage, quota } = await navigator.storage.estimate();
-          if (usage / quota > 0.9) {
-            localStorage.removeItem('cabinaFotograficaFotos');
-          }
-        }
-
         const savedPhotos = localStorage.getItem('cabinaFotograficaFotos');
         if (savedPhotos) {
-          try {
-            const parsedPhotos = JSON.parse(savedPhotos);
-            setRecentPhotos(parsedPhotos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY));
-          } catch (e) {
-            localStorage.removeItem('cabinaFotograficaFotos');
-          }
+          const parsedPhotos = JSON.parse(savedPhotos);
+          setRecentPhotos(parsedPhotos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY));
         }
         
         const savedGuestData = localStorage.getItem('cabinaFotograficaInvitados');
@@ -155,6 +144,7 @@ const CabinaFotografica = ({ fullscreenMode }) => {
       setCameraState(prev => ({ ...prev, error: "Error loading cameras", isLoading: false }));
     }
   };
+
 
   useEffect(() => {
     let stream = null;
@@ -194,44 +184,6 @@ const CabinaFotografica = ({ fullscreenMode }) => {
     };
   }, [cameraState.selectedCameraId, cameraState.isActive]);
 
-  const savePhotosToStorage = async (photos) => {
-    try {
-      const photosToSave = photos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY);
-      localStorage.setItem('cabinaFotograficaFotos', JSON.stringify(photosToSave));
-      return photosToSave;
-    } catch (error) {
-      if (error.name === 'QuotaExceededError') {
-        const reducedPhotos = photos.slice(0, Math.floor(CONFIG.MAX_PHOTOS_IN_GALLERY / 2));
-        localStorage.setItem('cabinaFotograficaFotos', JSON.stringify(reducedPhotos));
-        return reducedPhotos;
-      }
-      return photos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY);
-    }
-  };
-
-  const compressImage = (dataUrl, quality) => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      img.onerror = () => resolve(dataUrl);
-      img.src = dataUrl;
-    });
-  };
-
-  const handleClose = useCallback(() => {
-    if (cameraState.stream) {
-      cameraState.stream.getTracks().forEach(track => track.stop());
-    }
-    navigate("/");
-  }, [cameraState.stream, navigate]);
-
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return null;
     
@@ -259,71 +211,25 @@ const CabinaFotografica = ({ fullscreenMode }) => {
     return canvas.toDataURL('image/jpeg', 0.7);
   }, [cameraState.filter]);
 
-  const createCollage = useCallback(async (photos) => {
-    if (photos.length === 0) return null;
-    
-    try {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      const collageWidth = 800;
-      const collageHeight = 1200;
-      
-      canvas.width = collageWidth;
-      canvas.height = collageHeight;
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, collageWidth, collageHeight);
-      
-      const promises = photos.map((photo, index) => {
-        return new Promise((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            const yPos = index * (collageHeight / CONFIG.PHOTO_SEQUENCE_COUNT);
-            context.drawImage(img, 0, yPos, collageWidth, collageHeight / CONFIG.PHOTO_SEQUENCE_COUNT);
-            resolve();
-          };
-          img.onerror = resolve;
-          img.src = photo;
-        });
-      });
-      
-      await Promise.all(promises);
-      
-      context.font = '30px Orbitron';
-      context.fillStyle = '#00f0ff';
-      context.textAlign = 'center';
-      context.fillText('CABINA FUTURISTA', collageWidth / 2, collageHeight - 50);
-      context.font = '20px Orbitron';
-      context.fillText(guestData.name || 'USUARIO', collageWidth / 2, collageHeight - 20);
-      
-      return canvas.toDataURL('image/jpeg', 0.8);
-    } catch (error) {
-      console.error("Error creating collage:", error);
-      return null;
-    }
-  }, [guestData.name]);
-
   const handlePhotosTaken = useCallback(async (photos) => {
     if (photos.length === 0) return;
     
-    const collageUrl = await createCollage(photos);
-    if (!collageUrl) return;
-    
     const newPhoto = { 
-      url: collageUrl, 
+      url: photos[0], // Usamos solo la primera foto para la miniatura
       individualUrls: photos,
       timestamp: Date.now()
     };
 
     setRecentPhotos(prev => {
       const updatedPhotos = [newPhoto, ...prev].slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY);
-      savePhotosToStorage(updatedPhotos);
+      localStorage.setItem('cabinaFotograficaFotos', JSON.stringify(updatedPhotos));
       return updatedPhotos;
     });
     
-    setCurrentCollage(collageUrl);
-    setShowCollageModal(true);
-    setCapturedPhotos([]);
-  }, [createCollage]);
+    setCapturedPhotos(photos);
+    setShowResultModal(true);
+    setCurrentPhotoIndex(0);
+  }, []);
 
   const takePhotoSequence = useCallback(async () => {
     if (cameraState.isTakingPhotos || !cameraState.isActive) return;
@@ -382,10 +288,12 @@ const CabinaFotografica = ({ fullscreenMode }) => {
 
   const handleFilterChange = (filterId) => {
     setCameraState(prev => ({ ...prev, filter: filterId }));
+    setShowFilters(false);
   };
 
   const handleMaskChange = (maskId) => {
     setCameraState(prev => ({ ...prev, mask: maskId === prev.mask ? null : maskId }));
+    setShowMasks(false);
   };
 
   const toggleCamera = () => {
@@ -412,13 +320,10 @@ const CabinaFotografica = ({ fullscreenMode }) => {
           <html><head><title>Imprimir Foto</title><style>
             body { text-align: center; margin: 0; padding: 0; }
             img { max-width: 100%; height: auto; }
-            @media print { body { padding: 0; } img { width: 100%; height: auto; } }
           </style></head>
           <body>
             <img src="${photoUrl}" alt="Foto cabina futurista" />
-            <script>
-              setTimeout(() => { window.print(); window.close(); }, 500);
-            </script>
+            <script>setTimeout(() => { window.print(); window.close(); }, 500);</script>
           </body></html>
         `);
         printWindow.document.close();
@@ -457,49 +362,43 @@ const CabinaFotografica = ({ fullscreenMode }) => {
     </div>
   );
 
-  const CollageModal = () => (
-    <div className="collage-modal">
-      <div className="collage-modal-content">
-        <button className="close-modal" onClick={() => setShowCollageModal(false)}>
+  const ResultModal = () => (
+    <div className="result-modal">
+      <div className="result-modal-content">
+        <button className="close-modal" onClick={() => setShowResultModal(false)}>
           <X size={20} />
         </button>
-        <h3>¡CAPTURA PROCESADA!</h3>
-        <div className="collage-preview">
-          <img src={currentCollage} alt="Collage final" />
-        </div>
-        <div className="collage-actions">
-          <button onClick={() => handlePhotoAction('download', currentCollage)}>
-            DESCARGAR
-          </button>
-          <button onClick={() => {
-            setShowCollageModal(false);
-            setShowGalleryModal(true);
-          }}>
-            VER EN GALERÍA
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
-  const GalleryModal = () => (
-    <div className="gallery-modal">
-      <div className="gallery-modal-content">
-        <button className="close-modal" onClick={() => setShowGalleryModal(false)}>
-          <X size={20} />
-        </button>
-        <h3>ARCHIVO DE CAPTURAS</h3>
-        <div className="gallery-modal-body">
-          <CabinaFotograficaGallery 
-            photos={recentPhotos}
-            showActions={true}
-            onPhotoAction={handlePhotoAction}
-            autoPlay={true}
+        <h3>¡TUS FOTOS ESTÁN LISTAS!</h3>
+        
+        <div className="photo-preview-container">
+          <img 
+            src={capturedPhotos[currentPhotoIndex]} 
+            alt={`Foto ${currentPhotoIndex + 1}`} 
+            className="photo-preview"
           />
+          
+          {capturedPhotos.length > 1 && (
+            <div className="photo-selector">
+              {capturedPhotos.map((_, index) => (
+                <button
+                  key={index}
+                  className={`selector-dot ${currentPhotoIndex === index ? 'active' : ''}`}
+                  onClick={() => setCurrentPhotoIndex(index)}
+                />
+              ))}
+            </div>
+          )}
         </div>
-        <div className="gallery-modal-footer">
-          <button onClick={resetLocalStorage}>
-            LIMPIAR GALERÍA
+        
+        <div className="action-buttons">
+          <button onClick={() => handlePhotoAction('download', capturedPhotos[currentPhotoIndex])}>
+            <Download size={16} /> DESCARGAR
+          </button>
+          <button onClick={() => handlePhotoAction('print', capturedPhotos[currentPhotoIndex])}>
+            <Printer size={16} /> IMPRIMIR
+          </button>
+          <button onClick={() => handlePhotoAction('share', capturedPhotos[currentPhotoIndex])}>
+            <Share2 size={16} /> COMPARTIR
           </button>
         </div>
       </div>
@@ -513,7 +412,7 @@ const CabinaFotografica = ({ fullscreenMode }) => {
           setShowTutorial(false);
           setShowGuestForm(true);
         }}
-        onClose={handleClose}
+        onClose={() => navigate(-1)}
       />
     );
   }
@@ -524,244 +423,238 @@ const CabinaFotografica = ({ fullscreenMode }) => {
         guestData={guestData}
         onGuestDataChange={setGuestData}
         onContinue={() => setShowGuestForm(false)}
-        onClose={handleClose}
+        onClose={() => navigate(-1)}
       />
     );
   }
 
   return (
-    <div className={`cabina-fotografica-container ${fullscreenMode ? 'fullscreen-mode' : ''}`}>
-      {activeEffect === 'confetti' && <ConfettiEffect />}
-      {showCollageModal && <CollageModal />}
-      {showGalleryModal && <GalleryModal />}
-      
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
-      
-      <CabinaFotograficaAudio 
-        currentStep={currentStep}
-        photosTaken={cameraState.photosTaken}
-        onSubtitleChange={setSubtitle}
-      />
-      
-      {subtitle && <div className="subtitle-display">{subtitle}</div>}
+    return (
+      <div className="cabina-fotografica-container compact-view">
+        {activeEffect === 'confetti' && <ConfettiEffect />}
+        {showResultModal && <ResultModal />}
+        
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
+        
+        <CabinaFotograficaAudio 
+          currentStep={currentStep}
+          photosTaken={cameraState.photosTaken}
+          onSubtitleChange={setSubtitle}
+        />
+        
+        {subtitle && <div className="subtitle-display">{subtitle}</div>}
+    
+        <button className="close-fullscreen" onClick={() => navigate(-1)}>
+          <X size={20} />
+        </button>
+    
+        <header className="cabina-header">
+          <h1 className="cabina-title">CABINA FOTOGRÁFICA</h1>
+          <p className="cabina-subtitle">SISTEMA DE CAPTURA HOLOGRÁFICA</p>
+          {guestData.name && (
+            <p className="cabina-guest-name">
+              USUARIO: <span className="guest-name-highlight">{guestData.name}</span>
+            </p>
+          )}
+        </header>
+    
+        <div className="cabina-main-content">
+          <div className="camera-container">
+            <div className="camera-view">
+              {cameraState.error && (
+                <div className="camera-error">
+                  <X size={18} />
+                  <span>{cameraState.error}</span>
+                  <button className="retry-button" onClick={() => window.location.reload()}>
+                    REINTENTAR
+                  </button>
+                </div>
+              )}
   
-      <button className="close-fullscreen" onClick={handleClose}>
-        <X size={20} />
-      </button>
+              <video
+                ref={videoRef}
+                className="video-stream"
+                autoPlay
+                playsInline
+                muted
+                style={{
+                  filter: FILTERS.find(f => f.id === cameraState.filter)?.css,
+                  transform: 'scaleX(-1)'
+                }}
+              />
   
-      <header className="cabina-header">
-        <h1 className="cabina-title">CABINA FOTOGRÁFICA</h1>
-        <p className="cabina-subtitle">SISTEMA DE CAPTURA HOLOGRÁFICA</p>
-        {guestData.name && (
-          <p className="cabina-guest-name">
-            USUARIO: <span className="guest-name-highlight">{guestData.name}</span>
-          </p>
-        )}
-      </header>
+              {cameraState.mask && (
+                <div className="mask-container">
+                  <img
+                    className="mask-image"
+                    src={MASKS.find(m => m.id === cameraState.mask)?.url}
+                    style={{
+                      ...MASKS.find(m => m.id === cameraState.mask)?.position,
+                      transform: `${MASKS.find(m => m.id === cameraState.mask)?.position.transform || ''} scaleX(-1)`
+                    }}
+                    alt="Máscara seleccionada"
+                    onError={(e) => {
+                      e.target.src = '/img/placeholder-mask.png';
+                    }}
+                  />
+                </div>
+              )}
   
-      <div className="cabina-main-content">
-        <div className="cabina-left-column">
-          <div className="camera-view">
-            {cameraState.error && (
-              <div className="camera-error">
-                <X size={18} />
-                <span>{cameraState.error}</span>
-                <button className="retry-button" onClick={() => window.location.reload()}>
-                  REINTENTAR
-                </button>
-              </div>
-            )}
-
-            <video
-              ref={videoRef}
-              className="video-stream"
-              autoPlay
-              playsInline
-              muted
-              style={{
-                filter: FILTERS.find(f => f.id === cameraState.filter)?.css,
-                transform: 'scaleX(-1)'
-              }}
-            />
-
-            {cameraState.mask && (
-              <div className="mask-container">
-                <img
-                  className="mask-image"
-                  src={MASKS.find(m => m.id === cameraState.mask)?.url}
-                  style={{
-                    ...MASKS.find(m => m.id === cameraState.mask)?.position,
-                    transform: `${MASKS.find(m => m.id === cameraState.mask)?.position.transform || ''} scaleX(-1)`
-                  }}
-                  alt="Máscara seleccionada"
-                  onError={(e) => {
-                    e.target.src = '/img/placeholder-mask.png';
-                  }}
-                />
-              </div>
-            )}
-
-            {!cameraState.stream && (
-              <div className="loading-state">
-                {cameraState.isLoading ? (
-                  <>
-                    <div className="spinner"></div>
-                    <p>INICIANDO CÁMARA...</p>
-                  </>
-                ) : (
-                  <>
-                    <Camera size={48} />
-                    <p>CÁMARA NO DISPONIBLE</p>
-                  </>
-                )}
-              </div>
-            )}
-
-            {cameraState.flashActive && <div className="flash active"></div>}
-
-            {cameraState.showCountdown && (
-              <div className="countdown-display">
-                <div className="countdown-message">{cameraState.countdownMessage}</div>
-                {cameraState.countdown > 0 && (
-                  <div className="countdown-timer">{cameraState.countdown}</div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <button
-            className={`capture-button ${cameraState.isTakingPhotos ? 'processing' : ''}`}
-            onClick={takePhotoSequence}
-            disabled={!cameraState.stream || cameraState.isTakingPhotos}
-          >
-            {cameraState.isTakingPhotos ? (
-              <>
-                <div className="capture-loader"></div>
-                {`CAPTURA ${cameraState.photosTaken}/3`}
-              </>
-            ) : (
-              <>
-                <Zap size={20} /> INICIAR SECUENCIA
-              </>
-            )}
-          </button>
-        </div>
+              {!cameraState.stream && (
+                <div className="loading-state">
+                  {cameraState.isLoading ? (
+                    <>
+                      <div className="spinner"></div>
+                      <p>INICIANDO CÁMARA...</p>
+                    </>
+                  ) : (
+                    <>
+                      <Camera size={48} />
+                      <p>CÁMARA NO DISPONIBLE</p>
+                    </>
+                  )}
+                </div>
+              )}
   
-        <div className="cabina-right-column">
-          <div className="camera-controls-group">
-            <button 
-              className="control-button"
-              onClick={toggleCamera}
-              disabled={cameraState.isLoading}
+              {cameraState.flashActive && <div className="flash active"></div>}
+  
+              {cameraState.showCountdown && (
+                <div className="countdown-display">
+                  <div className="countdown-message">{cameraState.countdownMessage}</div>
+                  {cameraState.countdown > 0 && (
+                    <div className="countdown-timer">{cameraState.countdown}</div>
+                  )}
+                </div>
+              )}
+            </div>
+  
+            <button
+              className={`capture-button ${cameraState.isTakingPhotos ? 'processing' : ''}`}
+              onClick={takePhotoSequence}
+              disabled={!cameraState.stream || cameraState.isTakingPhotos}
             >
-              <Power size={18} />
-              <span>{cameraState.isActive ? "DESACTIVAR" : "ACTIVAR"}</span>
+              {cameraState.isTakingPhotos ? (
+                <>
+                  <div className="capture-loader"></div>
+                  {`CAPTURA ${cameraState.photosTaken}/3`}
+                </>
+              ) : (
+                <>
+                  <Zap size={20} /> INICIAR SECUENCIA
+                </>
+              )}
             </button>
-
-            {cameraState.availableCameras.length > 1 && (
-              <button
+          </div>
+  
+          <div className="compact-controls">
+            <div className="control-buttons-row">
+              <button 
                 className="control-button"
-                onClick={() => setCameraState(prev => ({...prev, showCameraSelector: true}))}
+                onClick={toggleCamera}
                 disabled={cameraState.isLoading}
               >
-                <RefreshCw size={18} />
-                <span>CÁMARA</span>
+                <Power size={18} />
+                <span>{cameraState.isActive ? "DESACTIVAR" : "ACTIVAR"}</span>
               </button>
+  
+              {cameraState.availableCameras.length > 1 && (
+                <button
+                  className="control-button"
+                  onClick={() => setCameraState(prev => ({...prev, showCameraSelector: true}))}
+                  disabled={cameraState.isLoading}
+                >
+                  <RefreshCw size={18} />
+                  <span>CÁMARA</span>
+                </button>
+              )}
+  
+              <button
+                className="control-button"
+                onClick={() => setShowFilters(!showFilters)}
+                disabled={cameraState.isTakingPhotos}
+              >
+                <Image size={18} />
+                <span>FILTROS</span>
+              </button>
+  
+              <button
+                className="control-button"
+                onClick={() => setShowMasks(!showMasks)}
+                disabled={cameraState.isTakingPhotos}
+              >
+                <User size={18} />
+                <span>MÁSCARAS</span>
+              </button>
+            </div>
+  
+            {showFilters && (
+              <div className="options-section">
+                <h3><Smile size={16} /> FILTROS HOLOGRÁFICOS</h3>
+                <div className="options-grid">
+                  {FILTERS.map(filter => (
+                    <button
+                      key={filter.id}
+                      className={`option-button ${cameraState.filter === filter.id ? 'active' : ''}`}
+                      onClick={() => handleFilterChange(filter.id)}
+                      disabled={cameraState.isTakingPhotos}
+                    >
+                      <div className="option-preview" style={{ filter: filter.css }}>
+                        <div className="option-icon">
+                          <Camera size={14} />
+                        </div>
+                      </div>
+                      <span className="option-name">{filter.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+  
+            {showMasks && (
+              <div className="options-section">
+                <h3><Smile size={16} /> MÓDULOS DE REALIDAD AUMENTADA</h3>
+                <div className="options-grid">
+                  {MASKS.map(mask => (
+                    <button
+                      key={mask.id}
+                      className={`option-button ${cameraState.mask === mask.id ? 'active' : ''}`}
+                      onClick={() => handleMaskChange(mask.id)}
+                      disabled={cameraState.isTakingPhotos}
+                    >
+                      <div className="option-preview">
+                        <img 
+                          src={mask.url} 
+                          alt={mask.name} 
+                          className="mask-preview-thumb"
+                          style={{
+                            ...mask.position,
+                            position: 'absolute'
+                          }}
+                          onError={(e) => {
+                            e.target.src = '/img/placeholder-mask.png';
+                          }}
+                        />
+                      </div>
+                      <span className="option-name">{mask.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
-
-          {cameraState.showCameraSelector && (
-            <div className="camera-selector-modal">
-              <div className="camera-selector-content">
-                <h4>SELECCIONAR CÁMARA</h4>
-                <ul className="camera-list">
-                  {cameraState.availableCameras.map((camera) => (
-                    <li
-                      key={camera.deviceId}
-                      className={cameraState.selectedCameraId === camera.deviceId ? 'selected' : ''}
-                      onClick={() => switchCamera(camera.deviceId)}
-                    >
-                      {camera.label || `Cámara ${camera.deviceId}`}
-                    </li>
-                  ))}
-                </ul>
-                <button onClick={() => setCameraState(prev => ({ ...prev, showCameraSelector: false }))}>
-                  CERRAR
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="filters-section">
-            <h3><Smile size={16} /> FILTROS HOLOGRÁFICOS</h3>
-            <div className="options-grid">
-              {FILTERS.map(filter => (
-                <button
-                  key={filter.id}
-                  className={`option-button ${cameraState.filter === filter.id ? 'active' : ''}`}
-                  onClick={() => handleFilterChange(filter.id)}
-                  disabled={cameraState.isTakingPhotos}
-                >
-                  <div className="option-preview" style={{ filter: filter.css }}>
-                    <div className="option-icon">
-                      <Camera size={14} />
-                    </div>
-                  </div>
-                  <span className="option-name">{filter.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="masks-section">
-            <h3><Smile size={16} /> MÓDULOS DE REALIDAD AUMENTADA</h3>
-            <div className="options-grid">
-              {MASKS.map(mask => (
-                <button
-                  key={mask.id}
-                  className={`option-button ${cameraState.mask === mask.id ? 'active' : ''}`}
-                  onClick={() => handleMaskChange(mask.id)}
-                  disabled={cameraState.isTakingPhotos}
-                >
-                  <div className="option-preview">
-                    <img 
-                      src={mask.url} 
-                      alt={mask.name} 
-                      className="mask-preview-thumb"
-                      style={{
-                        ...mask.position,
-                        position: 'absolute'
-                      }}
-                      onError={(e) => {
-                        e.target.src = '/img/placeholder-mask.png';
-                      }}
-                    />
-                  </div>
-                  <span className="option-name">{mask.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="secondary-controls">
-            <button
-              className="secondary-button"
-              onClick={() => setShowGalleryModal(true)}
-              disabled={recentPhotos.length === 0}
-            >
-              <Image size={16} /> ARCHIVO DE CAPTURAS
-            </button>
-            <button
-              className="secondary-button"
-              onClick={() => setShowGuestForm(true)}
-            >
-              <User size={16} /> {guestData.name ? 'EDITAR USUARIO' : 'REGISTRAR USUARIO'}
-            </button>
-          </div>
+  
+          <CabinaFotograficaGallery 
+            photos={recentPhotos}
+            onPhotoSelect={(photo) => {
+              setCapturedPhotos(photo.individualUrls || [photo.url]);
+              setCurrentPhotoIndex(0);
+              setShowResultModal(true);
+            }}
+            compactView={true}
+          />
         </div>
       </div>
-    </div>
-  );
-};
-
-export default CabinaFotografica;
+    );
+  };
+  
+  export default CabinaFotografica;

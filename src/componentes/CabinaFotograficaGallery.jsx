@@ -1,165 +1,66 @@
-import React, { useState, useEffect } from 'react';
-import { Image, Share2, Download, Printer, ChevronLeft } from 'react-feather';
+import React from "react";
+import { Image } from "react-feather";
 import "../assets/scss/_03-Componentes/_CabinaFotograficaGallery.scss";
 
 const CabinaFotograficaGallery = ({ 
-  photos, 
-  showActions,
-  onPhotoAction,
-  onBack
+  photos = [], 
+  onPhotoSelect, 
+  compactView = false,
+  showPromoPhotos = false
 }) => {
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [shareOptions, setShareOptions] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const [autoSlide, setAutoSlide] = useState(true);
+  const [showGallery, setShowGallery] = React.useState(false);
 
-  useEffect(() => {
-    if (photos.length > 0 && !selectedPhoto) {
-      setSelectedPhoto(photos[0]?.url || null);
-    }
-  }, [photos, selectedPhoto]);
+  // Fotos promocionales
+  const promoPhotos = [
+    { id: 1, src: "/img/06-img-galeria3/id1-c1.png", category: "Futurista" },
+    { id: 2, src: "/img/06-img-galeria3/id2-c2.png", category: "Neón" },
+    { id: 3, src: "/img/06-img-galeria3/id3-c3.png", category: "Cyber" },
+    { id: 4, src: "/img/06-img-galeria3/id4-c4.png", category: "Holográfico" },
+    { id: 5, src: "/img/06-img-galeria3/id5-c5.png", category: "Futurista" },
+  ];
 
-  useEffect(() => {
-    if (!autoSlide || photos.length <= 1 || showActions) return;
+  const allPhotos = showPromoPhotos ? [...photos, ...promoPhotos] : photos;
 
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % photos.length);
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [photos.length, autoSlide, showActions]);
-
-  useEffect(() => {
-    if (photos.length > 0 && !showActions) {
-      const photoUrl = photos[currentSlide]?.url;
-      if (photoUrl && photoUrl !== selectedPhoto) {
-        setSelectedPhoto(photoUrl);
-      }
-    }
-  }, [currentSlide, photos, selectedPhoto, showActions]);
-
-  const handlePhotoSelect = (index) => {
-    setCurrentSlide(index);
-    setAutoSlide(false);
-    setTimeout(() => setAutoSlide(true), 10000);
+  const handleImageError = (e) => {
+    e.target.src = '/img/placeholder-futurista.png';
+    e.target.alt = 'Imagen no disponible';
   };
-
-  const handleAction = (action, platform = null) => {
-    if (!selectedPhoto) return;
-    
-    if (action === 'share' && platform) {
-      onPhotoAction('share', selectedPhoto, platform);
-    } else {
-      onPhotoAction(action, selectedPhoto);
-    }
-  };
-
-  if (photos.length === 0) {
-    return (
-      <div className="gallery-container">
-        <div className="empty-gallery">
-          <Image size={48} className="empty-icon" />
-          <p>NO SE DETECTAN IMÁGENES EN EL SISTEMA</p>
-          <button className="back-button" onClick={onBack}>
-            <ChevronLeft size={16} /> INICIAR NUEVA SECUENCIA
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="gallery-container">
-      {showActions ? (
-        <div className="gallery-actions">
-          <h3 className="gallery-title">
-            <Image size={18} /> ¡CAPTURAS PROCESADAS!
-          </h3>
-          
-          <div className="photo-preview">
-            <img 
-              src={selectedPhoto || photos[0]?.url} 
-              alt="Foto seleccionada" 
-              className="selected-photo"
-            />
-          </div>
-
-          <div className="action-buttons">
-            <button 
-              className="action-button print-button"
-              onClick={() => handleAction('print')}
-            >
-              <Printer size={16} /> IMPRIMIR
-            </button>
-            <button 
-              className="action-button download-button"
-              onClick={() => handleAction('download')}
-            >
-              <Download size={16} /> DESCARGAR
-            </button>
-            <button 
-              className="action-button share-button"
-              onClick={() => setShareOptions(!shareOptions)}
-            >
-              <Share2 size={16} /> COMPARTIR
-              {shareOptions && (
-                <div className="share-dropdown">
-                  <button onClick={() => handleAction('share', 'whatsapp')}>
-                    <span className="network-icon whatsapp">WA</span> WhatsApp
-                  </button>
-                  <button onClick={() => handleAction('share', 'facebook')}>
-                    <span className="network-icon facebook">FB</span> Facebook
-                  </button>
-                  <button onClick={() => handleAction('share', 'instagram')}>
-                    <span className="network-icon instagram">IG</span> Instagram
-                  </button>
-                </div>
-              )}
-            </button>
-          </div>
-
-          <button className="back-button" onClick={onBack}>
-            <ChevronLeft size={16} /> NUEVA CAPTURA
-          </button>
-        </div>
-      ) : (
-        <>
-          <h3 className="gallery-title">
-            <Image size={18} /> ARCHIVO DE CAPTURAS ({photos.length})
-          </h3>
-          
-          <div className="photo-preview-slider">
-            <img 
-              src={selectedPhoto || photos[0]?.url} 
-              alt={`Foto ${currentSlide + 1}`} 
-              className="selected-photo"
-            />
-            <div className="slide-indicator">
-              {currentSlide + 1} / {photos.length}
-            </div>
-          </div>
-          
-          <div className="photos-grid">
-            {photos.map((photo, index) => (
+    <div className={`gallery-section ${compactView ? 'compact-view' : ''}`}>
+      <div className="gallery-header">
+        <h3><Image size={16} /> TUS CAPTURAS</h3>
+        <button 
+          className="toggle-gallery"
+          onClick={() => setShowGallery(!showGallery)}
+        >
+          {showGallery ? 'OCULTAR' : 'MOSTRAR'}
+        </button>
+      </div>
+      
+      {showGallery && (
+        <div className="gallery-thumbnails">
+          {allPhotos.length === 0 ? (
+            <p className="empty-gallery">No hay fotos disponibles</p>
+          ) : (
+            allPhotos.map((photo, index) => (
               <div 
-                key={`${photo.url}-${index}`}
-                className={`photo-item ${currentSlide === index ? 'selected' : ''}`}
-                onClick={() => handlePhotoSelect(index)}
+                key={index} 
+                className="gallery-thumbnail"
+                onClick={() => onPhotoSelect(photo)}
               >
                 <img 
-                  src={photo.url} 
-                  alt={`Foto ${index + 1}`} 
-                  loading="lazy"
-                  className="photo-thumbnail"
+                  src={photo.url || photo.src} 
+                  alt={`Foto ${index}`} 
+                  onError={handleImageError}
                 />
-                <span className="photo-badge">{index + 1}</span>
-                {currentSlide === index && (
-                  <div className="photo-selection-indicator"></div>
+                {photo.category && (
+                  <div className="photo-category">{photo.category}</div>
                 )}
               </div>
-            ))}
-          </div>
-        </>
+            ))
+          )}
+        </div>
       )}
     </div>
   );

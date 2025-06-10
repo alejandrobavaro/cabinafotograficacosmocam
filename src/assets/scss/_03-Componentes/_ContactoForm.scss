@@ -3,29 +3,64 @@
    ========================================================================== */
 
    .tech-form-section {
-    background: rgba(15, 15, 30, 0.8);
-    padding: 1.5rem 0;
-    margin: 1rem;
-    border-radius: 12px;
-    border: 1px solid rgba(100, 65, 255, 0.3);
-    box-shadow: 0 0 30px rgba(100, 65, 255, 0.2);
-    position: relative;
-    overflow: hidden;
-    max-width: 100%;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(100, 65, 255, 0.2);
+    margin-top: 1rem;
   
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0, 240, 255, 0.8),
-        rgba(100, 65, 255, 0.8),
-        transparent);
-      animation: scanline 5s linear infinite;
+    .tech-form-title {
+      font-family: 'Orbitron', sans-serif;
+      color: #00f0ff;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+  
+    .tech-contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  
+    .tech-form-group {
+      position: relative;
+      
+      .tech-input, .tech-textarea {
+        width: 100%;
+        padding: 1rem 1rem 1rem 2.5rem;
+        background: rgba(30, 30, 60, 0.6);
+        border: 1px solid rgba(100, 65, 255, 0.4);
+        color: #e0e0ff;
+      }
+  
+      .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00f0ff;
+      }
+    }
+  
+    .tech-submit-btn {
+      background: linear-gradient(135deg, #6441ff 0%, #00f0ff 100%);
+      padding: 1rem;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+  
+    .booth-slider-container {
+      margin-top: 3rem;
+      .booth-photo {
+        width: 100%;
+        border-radius: 8px;
+      }
     }
   }
   

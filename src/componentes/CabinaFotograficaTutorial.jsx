@@ -21,7 +21,7 @@ const TUTORIAL_STEPS = [
   }
 ];
 
-const CabinaFotograficaTutorial = ({ onStart }) => {
+const CabinaFotograficaTutorial = ({ onStart, onClose }) => {
   return (
     <div className="tutorial-wrapper">
       <div className="tutorial-card">
@@ -42,10 +42,15 @@ const CabinaFotograficaTutorial = ({ onStart }) => {
           ))}
         </div>
         
-        <button className="start-btn" onClick={onStart}>
-          <Zap size={18} />
-          INICIAR SECUENCIA
-        </button>
+        <div className="tutorial-actions">
+          <button className="start-btn" onClick={onStart}>
+            <Zap size={18} />
+            INICIAR SECUENCIA
+          </button>
+          <button className="close-btn" onClick={onClose}>
+            CERRAR
+          </button>
+        </div>
       </div>
     </div>
   );

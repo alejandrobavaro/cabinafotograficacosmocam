@@ -15,94 +15,65 @@ const ContactoForm = () => {
     autoplaySpeed: 5000,
     arrows: false,
     fade: true,
-    cssEase: 'linear',
-    pauseOnHover: true
+    cssEase: 'linear'
   };
 
-  const boothPhotos = [
-    "/img/03-img-banners/banner1.png",
-    "/img/03-img-banners/banner2.png",
-    "/img/03-img-banners/banner3.png",
-    "/img/03-img-banners/banner4.png",
-    "/img/03-img-banners/banner5.png"
-  ];
+  const boothPhotos = Array(5).fill().map((_, i) => 
+    `/img/03-img-banners/banner${i+1}.png`
+  );
 
   return (
-    <section className="tech-form-section">
-      <div className="tech-form-container">
-        <h2 className="tech-form-title">
-          <i className="bi bi-chat-square-text" /> TRANSMITE TU MENSAJE <i className="bi bi-chat-square-text" />
-        </h2>
+    <div className="tech-form-section">
+      <h2 className="tech-form-title">
+        <i className="bi bi-chat-square-text" /> TRANSMITE TU MENSAJE <i className="bi bi-chat-square-text" />
+      </h2>
+      
+      <form className="tech-contact-form" action="https://formspree.io/f/xbjnlgzz" method="POST">
+        {[
+          { type: "text", id: "nombre", icon: "person-fill", placeholder: "IDENTIFICACIÓN" },
+          { type: "email", id: "email", icon: "envelope-fill", placeholder: "HOLO-MAIL" }
+        ].map((input) => (
+          <div key={input.id} className="tech-form-group">
+            <input
+              type={input.type}
+              id={input.id}
+              name={input.id}
+              placeholder={input.placeholder}
+              required
+              className="tech-input"
+            />
+            <i className={`bi bi-${input.icon} input-icon`}></i>
+          </div>
+        ))}
         
-        <form
-          className="tech-contact-form"
-          action="https://formspree.io/f/xbjnlgzz"
-          target="_blank"
-          method="post"
-        >
-          <div className="tech-form-group">
-            <div className="input-glow"></div>
-            <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              placeholder="IDENTIFICACIÓN"
-              required
-              className="tech-input"
-            />
-            <i className="bi bi-person-fill input-icon"></i>
-          </div>
-          
-          <div className="tech-form-group">
-            <div className="input-glow"></div>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="HOLO-MAIL"
-              required
-              className="tech-input"
-            />
-            <i className="bi bi-envelope-fill input-icon"></i>
-          </div>
-          
-          <div className="tech-form-group">
-            <div className="input-glow"></div>
-            <textarea
-              id="mensaje"
-              name="mensaje"
-              rows={3}
-              placeholder="MENSAJE CODIFICADO..."
-              required
-              className="tech-textarea"
-            />
-            <i className="bi bi-pencil-fill input-icon"></i>
-          </div>
-          
-          <button type="submit" className="tech-submit-btn">
-            <span>ENVIAR TRANSMISIÓN</span>
-            <i className="bi bi-send" />
-            <div className="btn-glow"></div>
-          </button>
-        </form>
-
-        <div className="booth-slider-container">
-          <Slider {...sliderSettings} className="booth-slider">
-            {boothPhotos.map((photo, index) => (
-              <div key={index} className="slider-item">
-                <img 
-                  src={photo} 
-                  alt={`Neon Booth ${index + 1}`} 
-                  className="booth-photo"
-                />
-                <div className="photo-overlay"></div>
-                <div className="photo-scanline"></div>
-              </div>
-            ))}
-          </Slider>
+        <div className="tech-form-group">
+          <textarea
+            id="mensaje"
+            name="mensaje"
+            rows={3}
+            placeholder="MENSAJE CODIFICADO..."
+            required
+            className="tech-textarea"
+          />
+          <i className="bi bi-pencil-fill input-icon"></i>
         </div>
+        
+        <button type="submit" className="tech-submit-btn">
+          <span>ENVIAR TRANSMISIÓN</span>
+          <i className="bi bi-send" />
+        </button>
+      </form>
+
+      <div className="booth-slider-container">
+        <Slider {...sliderSettings}>
+          {boothPhotos.map((photo, index) => (
+            <div key={index}>
+              <img src={photo} alt={`Banner ${index+1}`} className="booth-photo" />
+            </div>
+          ))}
+        </Slider>
       </div>
-    </section>
+    </div>
   );
 };
 
