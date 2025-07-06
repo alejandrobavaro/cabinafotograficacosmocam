@@ -17,39 +17,39 @@ export const FILTERS = [
 ];
 
 export const MASKS = [
-  { 
-    id: 'cybermask', 
-    name: 'Máscara Cyber', 
+  {
+    id: 'cybermask',
+    name: 'Máscara Cyber',
     url: '/img/futurista/mask-cyber.png',
     position: { top: '15%', left: '50%', width: '50%', transform: 'translateX(-50%)' }
   },
-  { 
-    id: 'visor', 
-    name: 'Visor HUD', 
+  {
+    id: 'visor',
+    name: 'Visor HUD',
     url: '/img/futurista/mask-visor.gif',
     position: { top: '10%', left: '50%', width: '80%', transform: 'translateX(-50%)' }
   },
-  { 
-    id: 'circuit', 
-    name: 'Circuitos', 
+  {
+    id: 'circuit',
+    name: 'Circuitos',
     url: '/img/futurista/mask-circuit.png',
     position: { top: '0%', left: '50%', width: '100%', transform: 'translateX(-50%)' }
   },
-  { 
-    id: 'energy', 
-    name: 'Energía', 
+  {
+    id: 'energy',
+    name: 'Energía',
     url: '/img/futurista/mask-energy.gif',
     position: { top: '20%', left: '50%', width: '70%', transform: 'translateX(-50%)' }
   },
-  { 
-    id: 'neon-frame', 
-    name: 'Marco Neon', 
+  {
+    id: 'neon-frame',
+    name: 'Marco Neon',
     url: '/img/futurista/mask-neonframe.png',
     position: { top: '5%', left: '50%', width: '90%', transform: 'translateX(-50%)' }
   },
-  { 
-    id: 'data', 
-    name: 'Flujo de Datos', 
+  {
+    id: 'data',
+    name: 'Flujo de Datos',
     url: '/img/futurista/mask-data.gif',
     position: { bottom: '15%', left: '50%', width: '100%', transform: 'translateX(-50%)' }
   }
@@ -67,7 +67,6 @@ const CabinaFotografica = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
-
   const [showTutorial, setShowTutorial] = useState(true);
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [guestData, setGuestData] = useState({ name: '', phone: '' });
@@ -80,7 +79,6 @@ const CabinaFotografica = () => {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showMasks, setShowMasks] = useState(false);
-
   const [cameraState, setCameraState] = useState({
     isActive: true,
     isLoading: true,
@@ -118,7 +116,7 @@ const CabinaFotografica = () => {
           const parsedPhotos = JSON.parse(savedPhotos);
           setRecentPhotos(parsedPhotos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY));
         }
-        
+
         const savedGuestData = localStorage.getItem('cabinaFotograficaInvitados');
         if (savedGuestData) setGuestData(JSON.parse(savedGuestData));
       } catch (error) {
@@ -145,14 +143,11 @@ const CabinaFotografica = () => {
     }
   };
 
-
   useEffect(() => {
     let stream = null;
-
     const initCamera = async () => {
       try {
         setCameraState(prev => ({ ...prev, isLoading: true, error: null }));
-
         const constraints = {
           video: {
             deviceId: cameraState.selectedCameraId ? { exact: cameraState.selectedCameraId } : undefined,
@@ -160,9 +155,8 @@ const CabinaFotografica = () => {
           },
           audio: false
         };
-
         stream = await navigator.mediaDevices.getUserMedia(constraints);
-        
+
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
           videoRef.current.onloadedmetadata = () => {
@@ -186,18 +180,18 @@ const CabinaFotografica = () => {
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return null;
-    
+
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const context = canvas.getContext('2d');
-    
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
+
     context.translate(canvas.width, 0);
     context.scale(-1, 1);
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
+
     if (cameraState.filter !== 'none') {
       const filter = FILTERS.find(f => f.id === cameraState.filter)?.css;
       if (filter) {
@@ -206,26 +200,25 @@ const CabinaFotografica = () => {
         context.filter = 'none';
       }
     }
-    
+
     context.setTransform(1, 0, 0, 1, 0, 0);
     return canvas.toDataURL('image/jpeg', 0.7);
   }, [cameraState.filter]);
 
   const handlePhotosTaken = useCallback(async (photos) => {
     if (photos.length === 0) return;
-    
-    const newPhoto = { 
-      url: photos[0], // Usamos solo la primera foto para la miniatura
+
+    const newPhoto = {
+      url: photos[0],
       individualUrls: photos,
       timestamp: Date.now()
     };
-
     setRecentPhotos(prev => {
       const updatedPhotos = [newPhoto, ...prev].slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY);
       localStorage.setItem('cabinaFotograficaFotos', JSON.stringify(updatedPhotos));
       return updatedPhotos;
     });
-    
+
     setCapturedPhotos(photos);
     setShowResultModal(true);
     setCurrentPhotoIndex(0);
@@ -233,17 +226,16 @@ const CabinaFotografica = () => {
 
   const takePhotoSequence = useCallback(async () => {
     if (cameraState.isTakingPhotos || !cameraState.isActive) return;
-
     setCameraState(prev => ({ ...prev, isTakingPhotos: true, photosTaken: 0 }));
     setCurrentStep('start');
     setCapturedPhotos([]);
-    
+
     try {
       const photos = [];
-      
+
       for (let i = 0; i < CONFIG.PHOTO_SEQUENCE_COUNT; i++) {
-        setCameraState(prev => ({ 
-          ...prev, 
+        setCameraState(prev => ({
+          ...prev,
           photosTaken: i + 1,
           showCountdown: true,
           countdownMessage: `CAPTURA ${i + 1} DE ${CONFIG.PHOTO_SEQUENCE_COUNT}`,
@@ -257,16 +249,15 @@ const CabinaFotografica = () => {
 
         setCameraState(prev => ({ ...prev, countdown: 0, countdownMessage: '¡SONRÍE!' }));
         await new Promise(resolve => setTimeout(resolve, 200));
-
         setCameraState(prev => ({ ...prev, flashActive: true }));
         triggerEffect();
-        
+
         const photoUrl = capturePhoto();
         if (photoUrl) {
           photos.push(photoUrl);
           setCapturedPhotos(prev => [...prev, photoUrl]);
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, CONFIG.FLASH_DURATION));
         setCameraState(prev => ({ ...prev, flashActive: false }));
 
@@ -274,14 +265,14 @@ const CabinaFotografica = () => {
           await new Promise(resolve => setTimeout(resolve, CONFIG.PHOTO_DELAY));
         }
       }
-      
+
       if (photos.length > 0) await handlePhotosTaken(photos);
     } finally {
-      setCameraState(prev => ({ 
-        ...prev, 
-        isTakingPhotos: false, 
+      setCameraState(prev => ({
+        ...prev,
+        isTakingPhotos: false,
         photosTaken: 0,
-        showCountdown: false 
+        showCountdown: false
       }));
     }
   }, [cameraState.isActive, cameraState.isTakingPhotos, triggerEffect, capturePhoto, handlePhotosTaken]);
@@ -348,7 +339,7 @@ const CabinaFotografica = () => {
   const ConfettiEffect = () => (
     <div className="confetti-effect">
       {[...Array(50)].map((_, i) => (
-        <div 
+        <div
           key={i}
           className="confetti-piece"
           style={{
@@ -369,14 +360,14 @@ const CabinaFotografica = () => {
           <X size={20} />
         </button>
         <h3>¡TUS FOTOS ESTÁN LISTAS!</h3>
-        
+
         <div className="photo-preview-container">
-          <img 
-            src={capturedPhotos[currentPhotoIndex]} 
-            alt={`Foto ${currentPhotoIndex + 1}`} 
+          <img
+            src={capturedPhotos[currentPhotoIndex]}
+            alt={`Foto ${currentPhotoIndex + 1}`}
             className="photo-preview"
           />
-          
+
           {capturedPhotos.length > 1 && (
             <div className="photo-selector">
               {capturedPhotos.map((_, index) => (
@@ -389,7 +380,7 @@ const CabinaFotografica = () => {
             </div>
           )}
         </div>
-        
+
         <div className="action-buttons">
           <button onClick={() => handlePhotoAction('download', capturedPhotos[currentPhotoIndex])}>
             <Download size={16} /> DESCARGAR
@@ -407,7 +398,7 @@ const CabinaFotografica = () => {
 
   if (showTutorial) {
     return (
-      <CabinaFotograficaTutorial 
+      <CabinaFotograficaTutorial
         onStart={() => {
           setShowTutorial(false);
           setShowGuestForm(true);
@@ -429,232 +420,231 @@ const CabinaFotografica = () => {
   }
 
   return (
-    return (
-      <div className="cabina-fotografica-container compact-view">
-        {activeEffect === 'confetti' && <ConfettiEffect />}
-        {showResultModal && <ResultModal />}
-        
-        <canvas ref={canvasRef} style={{ display: 'none' }} />
-        
-        <CabinaFotograficaAudio 
-          currentStep={currentStep}
-          photosTaken={cameraState.photosTaken}
-          onSubtitleChange={setSubtitle}
-        />
-        
-        {subtitle && <div className="subtitle-display">{subtitle}</div>}
-    
-        <button className="close-fullscreen" onClick={() => navigate(-1)}>
-          <X size={20} />
-        </button>
-    
-        <header className="cabina-header">
-          <h1 className="cabina-title">CABINA FOTOGRÁFICA</h1>
-          <p className="cabina-subtitle">SISTEMA DE CAPTURA HOLOGRÁFICA</p>
-          {guestData.name && (
-            <p className="cabina-guest-name">
-              USUARIO: <span className="guest-name-highlight">{guestData.name}</span>
-            </p>
-          )}
-        </header>
-    
-        <div className="cabina-main-content">
-          <div className="camera-container">
-            <div className="camera-view">
-              {cameraState.error && (
-                <div className="camera-error">
-                  <X size={18} />
-                  <span>{cameraState.error}</span>
-                  <button className="retry-button" onClick={() => window.location.reload()}>
-                    REINTENTAR
-                  </button>
-                </div>
-              )}
-  
-              <video
-                ref={videoRef}
-                className="video-stream"
-                autoPlay
-                playsInline
-                muted
-                style={{
-                  filter: FILTERS.find(f => f.id === cameraState.filter)?.css,
-                  transform: 'scaleX(-1)'
-                }}
-              />
-  
-              {cameraState.mask && (
-                <div className="mask-container">
-                  <img
-                    className="mask-image"
-                    src={MASKS.find(m => m.id === cameraState.mask)?.url}
-                    style={{
-                      ...MASKS.find(m => m.id === cameraState.mask)?.position,
-                      transform: `${MASKS.find(m => m.id === cameraState.mask)?.position.transform || ''} scaleX(-1)`
-                    }}
-                    alt="Máscara seleccionada"
-                    onError={(e) => {
-                      e.target.src = '/img/placeholder-mask.png';
-                    }}
-                  />
-                </div>
-              )}
-  
-              {!cameraState.stream && (
-                <div className="loading-state">
-                  {cameraState.isLoading ? (
-                    <>
-                      <div className="spinner"></div>
-                      <p>INICIANDO CÁMARA...</p>
-                    </>
-                  ) : (
-                    <>
-                      <Camera size={48} />
-                      <p>CÁMARA NO DISPONIBLE</p>
-                    </>
-                  )}
-                </div>
-              )}
-  
-              {cameraState.flashActive && <div className="flash active"></div>}
-  
-              {cameraState.showCountdown && (
-                <div className="countdown-display">
-                  <div className="countdown-message">{cameraState.countdownMessage}</div>
-                  {cameraState.countdown > 0 && (
-                    <div className="countdown-timer">{cameraState.countdown}</div>
-                  )}
-                </div>
-              )}
-            </div>
-  
-            <button
-              className={`capture-button ${cameraState.isTakingPhotos ? 'processing' : ''}`}
-              onClick={takePhotoSequence}
-              disabled={!cameraState.stream || cameraState.isTakingPhotos}
-            >
-              {cameraState.isTakingPhotos ? (
-                <>
-                  <div className="capture-loader"></div>
-                  {`CAPTURA ${cameraState.photosTaken}/3`}
-                </>
-              ) : (
-                <>
-                  <Zap size={20} /> INICIAR SECUENCIA
-                </>
-              )}
-            </button>
+    <div className="cabina-fotografica-container compact-view">
+      {activeEffect === 'confetti' && <ConfettiEffect />}
+      {showResultModal && <ResultModal />}
+
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+
+      <CabinaFotograficaAudio
+        currentStep={currentStep}
+        photosTaken={cameraState.photosTaken}
+        onSubtitleChange={setSubtitle}
+      />
+
+      {subtitle && <div className="subtitle-display">{subtitle}</div>}
+
+      <button className="close-fullscreen" onClick={() => navigate(-1)}>
+        <X size={20} />
+      </button>
+
+      <header className="cabina-header">
+        <h1 className="cabina-title">CABINA FOTOGRÁFICA</h1>
+        <p className="cabina-subtitle">SISTEMA DE CAPTURA HOLOGRÁFICA</p>
+        {guestData.name && (
+          <p className="cabina-guest-name">
+            USUARIO: <span className="guest-name-highlight">{guestData.name}</span>
+          </p>
+        )}
+      </header>
+
+      <div className="cabina-main-content">
+        <div className="camera-container">
+          <div className="camera-view">
+            {cameraState.error && (
+              <div className="camera-error">
+                <X size={18} />
+                <span>{cameraState.error}</span>
+                <button className="retry-button" onClick={() => window.location.reload()}>
+                  REINTENTAR
+                </button>
+              </div>
+            )}
+
+            <video
+              ref={videoRef}
+              className="video-stream"
+              autoPlay
+              playsInline
+              muted
+              style={{
+                filter: FILTERS.find(f => f.id === cameraState.filter)?.css,
+                transform: 'scaleX(-1)'
+              }}
+            />
+
+            {cameraState.mask && (
+              <div className="mask-container">
+                <img
+                  className="mask-image"
+                  src={MASKS.find(m => m.id === cameraState.mask)?.url}
+                  style={{
+                    ...MASKS.find(m => m.id === cameraState.mask)?.position,
+                    transform: `${MASKS.find(m => m.id === cameraState.mask)?.position.transform || ''} scaleX(-1)`
+                  }}
+                  alt="Máscara seleccionada"
+                  onError={(e) => {
+                    e.target.src = '/img/placeholder-mask.png';
+                  }}
+                />
+              </div>
+            )}
+
+            {!cameraState.stream && (
+              <div className="loading-state">
+                {cameraState.isLoading ? (
+                  <>
+                    <div className="spinner"></div>
+                    <p>INICIANDO CÁMARA...</p>
+                  </>
+                ) : (
+                  <>
+                    <Camera size={48} />
+                    <p>CÁMARA NO DISPONIBLE</p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {cameraState.flashActive && <div className="flash active"></div>}
+
+            {cameraState.showCountdown && (
+              <div className="countdown-display">
+                <div className="countdown-message">{cameraState.countdownMessage}</div>
+                {cameraState.countdown > 0 && (
+                  <div className="countdown-timer">{cameraState.countdown}</div>
+                )}
+              </div>
+            )}
           </div>
-  
-          <div className="compact-controls">
-            <div className="control-buttons-row">
-              <button 
+
+          <button
+            className={`capture-button ${cameraState.isTakingPhotos ? 'processing' : ''}`}
+            onClick={takePhotoSequence}
+            disabled={!cameraState.stream || cameraState.isTakingPhotos}
+          >
+            {cameraState.isTakingPhotos ? (
+              <>
+                <div className="capture-loader"></div>
+                {`CAPTURA ${cameraState.photosTaken}/3`}
+              </>
+            ) : (
+              <>
+                <Zap size={20} /> INICIAR SECUENCIA
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="compact-controls">
+          <div className="control-buttons-row">
+            <button
+              className="control-button"
+              onClick={toggleCamera}
+              disabled={cameraState.isLoading}
+            >
+              <Power size={18} />
+              <span>{cameraState.isActive ? "DESACTIVAR" : "ACTIVAR"}</span>
+            </button>
+
+            {cameraState.availableCameras.length > 1 && (
+              <button
                 className="control-button"
-                onClick={toggleCamera}
+                onClick={() => setCameraState(prev => ({...prev, showCameraSelector: true}))}
                 disabled={cameraState.isLoading}
               >
-                <Power size={18} />
-                <span>{cameraState.isActive ? "DESACTIVAR" : "ACTIVAR"}</span>
+                <RefreshCw size={18} />
+                <span>CÁMARA</span>
               </button>
-  
-              {cameraState.availableCameras.length > 1 && (
-                <button
-                  className="control-button"
-                  onClick={() => setCameraState(prev => ({...prev, showCameraSelector: true}))}
-                  disabled={cameraState.isLoading}
-                >
-                  <RefreshCw size={18} />
-                  <span>CÁMARA</span>
-                </button>
-              )}
-  
-              <button
-                className="control-button"
-                onClick={() => setShowFilters(!showFilters)}
-                disabled={cameraState.isTakingPhotos}
-              >
-                <Image size={18} />
-                <span>FILTROS</span>
-              </button>
-  
-              <button
-                className="control-button"
-                onClick={() => setShowMasks(!showMasks)}
-                disabled={cameraState.isTakingPhotos}
-              >
-                <User size={18} />
-                <span>MÁSCARAS</span>
-              </button>
-            </div>
-  
-            {showFilters && (
-              <div className="options-section">
-                <h3><Smile size={16} /> FILTROS HOLOGRÁFICOS</h3>
-                <div className="options-grid">
-                  {FILTERS.map(filter => (
-                    <button
-                      key={filter.id}
-                      className={`option-button ${cameraState.filter === filter.id ? 'active' : ''}`}
-                      onClick={() => handleFilterChange(filter.id)}
-                      disabled={cameraState.isTakingPhotos}
-                    >
-                      <div className="option-preview" style={{ filter: filter.css }}>
-                        <div className="option-icon">
-                          <Camera size={14} />
-                        </div>
-                      </div>
-                      <span className="option-name">{filter.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             )}
-  
-            {showMasks && (
-              <div className="options-section">
-                <h3><Smile size={16} /> MÓDULOS DE REALIDAD AUMENTADA</h3>
-                <div className="options-grid">
-                  {MASKS.map(mask => (
-                    <button
-                      key={mask.id}
-                      className={`option-button ${cameraState.mask === mask.id ? 'active' : ''}`}
-                      onClick={() => handleMaskChange(mask.id)}
-                      disabled={cameraState.isTakingPhotos}
-                    >
-                      <div className="option-preview">
-                        <img 
-                          src={mask.url} 
-                          alt={mask.name} 
-                          className="mask-preview-thumb"
-                          style={{
-                            ...mask.position,
-                            position: 'absolute'
-                          }}
-                          onError={(e) => {
-                            e.target.src = '/img/placeholder-mask.png';
-                          }}
-                        />
-                      </div>
-                      <span className="option-name">{mask.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+
+            <button
+              className="control-button"
+              onClick={() => setShowFilters(!showFilters)}
+              disabled={cameraState.isTakingPhotos}
+            >
+              <Image size={18} />
+              <span>FILTROS</span>
+            </button>
+
+            <button
+              className="control-button"
+              onClick={() => setShowMasks(!showMasks)}
+              disabled={cameraState.isTakingPhotos}
+            >
+              <User size={18} />
+              <span>MÁSCARAS</span>
+            </button>
           </div>
-  
-          <CabinaFotograficaGallery 
-            photos={recentPhotos}
-            onPhotoSelect={(photo) => {
-              setCapturedPhotos(photo.individualUrls || [photo.url]);
-              setCurrentPhotoIndex(0);
-              setShowResultModal(true);
-            }}
-            compactView={true}
-          />
+
+          {showFilters && (
+            <div className="options-section">
+              <h3><Smile size={16} /> FILTROS HOLOGRÁFICOS</h3>
+              <div className="options-grid">
+                {FILTERS.map(filter => (
+                  <button
+                    key={filter.id}
+                    className={`option-button ${cameraState.filter === filter.id ? 'active' : ''}`}
+                    onClick={() => handleFilterChange(filter.id)}
+                    disabled={cameraState.isTakingPhotos}
+                  >
+                    <div className="option-preview" style={{ filter: filter.css }}>
+                      <div className="option-icon">
+                        <Camera size={14} />
+                      </div>
+                    </div>
+                    <span className="option-name">{filter.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showMasks && (
+            <div className="options-section">
+              <h3><Smile size={16} /> MÓDULOS DE REALIDAD AUMENTADA</h3>
+              <div className="options-grid">
+                {MASKS.map(mask => (
+                  <button
+                    key={mask.id}
+                    className={`option-button ${cameraState.mask === mask.id ? 'active' : ''}`}
+                    onClick={() => handleMaskChange(mask.id)}
+                    disabled={cameraState.isTakingPhotos}
+                  >
+                    <div className="option-preview">
+                      <img
+                        src={mask.url}
+                        alt={mask.name}
+                        className="mask-preview-thumb"
+                        style={{
+                          ...mask.position,
+                          position: 'absolute'
+                        }}
+                        onError={(e) => {
+                          e.target.src = '/img/placeholder-mask.png';
+                        }}
+                      />
+                    </div>
+                    <span className="option-name">{mask.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
+
+        <CabinaFotograficaGallery
+          photos={recentPhotos}
+          onPhotoSelect={(photo) => {
+            setCapturedPhotos(photo.individualUrls || [photo.url]);
+            setCurrentPhotoIndex(0);
+            setShowResultModal(true);
+          }}
+          compactView={true}
+        />
       </div>
-    );
-  };
-  
-  export default CabinaFotografica;
+    </div>
+  );
+};
+
+export default CabinaFotografica;
