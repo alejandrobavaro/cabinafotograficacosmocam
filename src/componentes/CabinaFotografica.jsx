@@ -17,42 +17,12 @@ export const FILTERS = [
 ];
 
 export const MASKS = [
-  {
-    id: 'cybermask',
-    name: 'Máscara Cyber',
-    url: '/img/futurista/mask-cyber.png',
-    position: { top: '15%', left: '50%', width: '50%', transform: 'translateX(-50%)' }
-  },
-  {
-    id: 'visor',
-    name: 'Visor HUD',
-    url: '/img/futurista/mask-visor.gif',
-    position: { top: '10%', left: '50%', width: '80%', transform: 'translateX(-50%)' }
-  },
-  {
-    id: 'circuit',
-    name: 'Circuitos',
-    url: '/img/futurista/mask-circuit.png',
-    position: { top: '0%', left: '50%', width: '100%', transform: 'translateX(-50%)' }
-  },
-  {
-    id: 'energy',
-    name: 'Energía',
-    url: '/img/futurista/mask-energy.gif',
-    position: { top: '20%', left: '50%', width: '70%', transform: 'translateX(-50%)' }
-  },
-  {
-    id: 'neon-frame',
-    name: 'Marco Neon',
-    url: '/img/futurista/mask-neonframe.png',
-    position: { top: '5%', left: '50%', width: '90%', transform: 'translateX(-50%)' }
-  },
-  {
-    id: 'data',
-    name: 'Flujo de Datos',
-    url: '/img/futurista/mask-data.gif',
-    position: { bottom: '15%', left: '50%', width: '100%', transform: 'translateX(-50%)' }
-  }
+  { id: 'cybermask', name: 'Máscara Cyber', url: '/img/futurista/mask-cyber.png', position: { top: '15%', left: '50%', width: '50%', transform: 'translateX(-50%)' } },
+  { id: 'visor', name: 'Visor HUD', url: '/img/futurista/mask-visor.gif', position: { top: '10%', left: '50%', width: '80%', transform: 'translateX(-50%)' } },
+  { id: 'circuit', name: 'Circuitos', url: '/img/futurista/mask-circuit.png', position: { top: '0%', left: '50%', width: '100%', transform: 'translateX(-50%)' } },
+  { id: 'energy', name: 'Energía', url: '/img/futurista/mask-energy.gif', position: { top: '20%', left: '50%', width: '70%', transform: 'translateX(-50%)' } },
+  { id: 'neon-frame', name: 'Marco Neon', url: '/img/futurista/mask-neonframe.png', position: { top: '5%', left: '50%', width: '90%', transform: 'translateX(-50%)' } },
+  { id: 'data', name: 'Flujo de Datos', url: '/img/futurista/mask-data.gif', position: { bottom: '15%', left: '50%', width: '100%', transform: 'translateX(-50%)' } }
 ];
 
 const CONFIG = {
@@ -108,6 +78,21 @@ const CabinaFotografica = () => {
     setTimeout(() => setActiveEffect(null), 2000);
   }, []);
 
+  const loadAvailableCameras = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      setCameraState(prev => ({
+        ...prev,
+        availableCameras: videoDevices,
+        selectedCameraId: videoDevices[0]?.deviceId || '',
+        isLoading: false
+      }));
+    } catch (err) {
+      setCameraState(prev => ({ ...prev, error: "Error al cargar las cámaras", isLoading: false }));
+    }
+  };
+
   useEffect(() => {
     const loadInitialData = async () => {
       try {
@@ -116,82 +101,67 @@ const CabinaFotografica = () => {
           const parsedPhotos = JSON.parse(savedPhotos);
           setRecentPhotos(parsedPhotos.slice(0, CONFIG.MAX_PHOTOS_IN_GALLERY));
         }
-
         const savedGuestData = localStorage.getItem('cabinaFotograficaInvitados');
         if (savedGuestData) setGuestData(JSON.parse(savedGuestData));
       } catch (error) {
         console.error("Error loading data:", error);
       }
     };
-
     loadInitialData();
     loadAvailableCameras();
   }, []);
 
-  const loadAvailableCameras = async () => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      setCameraState(prev => ({
-        ...prev,
-        availableCameras: videoDevices,
-        selectedCameraId: videoDevices[0]?.deviceId,
-        isLoading: false
-      }));
-    } catch (err) {
-      setCameraState(prev => ({ ...prev, error: "Error loading cameras", isLoading: false }));
-    }
-  };
-
   useEffect(() => {
     let stream = null;
     const initCamera = async () => {
+      if (!cameraState.selectedCameraId) return;
       try {
         setCameraState(prev => ({ ...prev, isLoading: true, error: null }));
         const constraints = {
-          video: {
-            deviceId: cameraState.selectedCameraId ? { exact: cameraState.selectedCameraId } : undefined,
-            facingMode: "user"
-          },
+          video: { deviceId: { exact: cameraState.selectedCameraId } },
           audio: false
         };
         stream = await navigator.mediaDevices.getUserMedia(constraints);
-
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.onloadedmetadata = () => {
-            videoRef.current.play();
-            setCameraState(prev => ({ ...prev, isLoading: false, stream, isActive: true }));
-          };
+          await videoRef.current.play();
+          setCameraState(prev => ({ ...prev, isLoading: false, stream, isActive: true }));
         }
       } catch (err) {
-        setCameraState(prev => ({ ...prev, error: "Camera access denied", isLoading: false }));
-        if (stream) stream.getTracks().forEach(track => track.stop());
+        console.error("Error accessing the camera: ", err);
+        setCameraState(prev => ({
+          ...prev,
+          error: "No se pudo acceder a la cámara. Por favor, asegúrate de que la cámara esté conectada y de que hayas dado permiso para acceder a ella.",
+          isLoading: false
+        }));
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
       }
     };
-
-    if (cameraState.isActive && cameraState.selectedCameraId) initCamera();
-
+    if (cameraState.selectedCameraId) {
+      initCamera();
+    }
     return () => {
-      if (stream) stream.getTracks().forEach(track => track.stop());
-      if (videoRef.current?.srcObject) videoRef.current.srcObject = null;
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (videoRef.current?.srcObject) {
+        videoRef.current.srcObject = null;
+      }
     };
-  }, [cameraState.selectedCameraId, cameraState.isActive]);
+  }, [cameraState.selectedCameraId]);
 
   const capturePhoto = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return null;
-
+    if (!videoRef.current || !canvasRef.current || !cameraState.stream) return null;
     const canvas = canvasRef.current;
     const video = videoRef.current;
     const context = canvas.getContext('2d');
-
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
     context.translate(canvas.width, 0);
     context.scale(-1, 1);
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
     if (cameraState.filter !== 'none') {
       const filter = FILTERS.find(f => f.id === cameraState.filter)?.css;
       if (filter) {
@@ -200,14 +170,12 @@ const CabinaFotografica = () => {
         context.filter = 'none';
       }
     }
-
     context.setTransform(1, 0, 0, 1, 0, 0);
     return canvas.toDataURL('image/jpeg', 0.7);
-  }, [cameraState.filter]);
+  }, [cameraState.filter, cameraState.stream]);
 
   const handlePhotosTaken = useCallback(async (photos) => {
     if (photos.length === 0) return;
-
     const newPhoto = {
       url: photos[0],
       individualUrls: photos,
@@ -218,21 +186,18 @@ const CabinaFotografica = () => {
       localStorage.setItem('cabinaFotograficaFotos', JSON.stringify(updatedPhotos));
       return updatedPhotos;
     });
-
     setCapturedPhotos(photos);
     setShowResultModal(true);
     setCurrentPhotoIndex(0);
   }, []);
 
   const takePhotoSequence = useCallback(async () => {
-    if (cameraState.isTakingPhotos || !cameraState.isActive) return;
+    if (cameraState.isTakingPhotos || !cameraState.isActive || !cameraState.stream) return;
     setCameraState(prev => ({ ...prev, isTakingPhotos: true, photosTaken: 0 }));
     setCurrentStep('start');
     setCapturedPhotos([]);
-
     try {
       const photos = [];
-
       for (let i = 0; i < CONFIG.PHOTO_SEQUENCE_COUNT; i++) {
         setCameraState(prev => ({
           ...prev,
@@ -241,31 +206,25 @@ const CabinaFotografica = () => {
           countdownMessage: `CAPTURA ${i + 1} DE ${CONFIG.PHOTO_SEQUENCE_COUNT}`,
           countdown: 3
         }));
-
         for (let j = 3; j > 0; j--) {
           await new Promise(resolve => setTimeout(resolve, CONFIG.COUNTDOWN_DURATION));
           setCameraState(prev => ({ ...prev, countdown: j }));
         }
-
         setCameraState(prev => ({ ...prev, countdown: 0, countdownMessage: '¡SONRÍE!' }));
         await new Promise(resolve => setTimeout(resolve, 200));
         setCameraState(prev => ({ ...prev, flashActive: true }));
         triggerEffect();
-
         const photoUrl = capturePhoto();
         if (photoUrl) {
           photos.push(photoUrl);
           setCapturedPhotos(prev => [...prev, photoUrl]);
         }
-
         await new Promise(resolve => setTimeout(resolve, CONFIG.FLASH_DURATION));
         setCameraState(prev => ({ ...prev, flashActive: false }));
-
         if (i < CONFIG.PHOTO_SEQUENCE_COUNT - 1) {
           await new Promise(resolve => setTimeout(resolve, CONFIG.PHOTO_DELAY));
         }
       }
-
       if (photos.length > 0) await handlePhotosTaken(photos);
     } finally {
       setCameraState(prev => ({
@@ -275,7 +234,7 @@ const CabinaFotografica = () => {
         showCountdown: false
       }));
     }
-  }, [cameraState.isActive, cameraState.isTakingPhotos, triggerEffect, capturePhoto, handlePhotosTaken]);
+  }, [cameraState.isActive, cameraState.isTakingPhotos, cameraState.stream, triggerEffect, capturePhoto, handlePhotosTaken]);
 
   const handleFilterChange = (filterId) => {
     setCameraState(prev => ({ ...prev, filter: filterId }));
@@ -353,48 +312,82 @@ const CabinaFotografica = () => {
     </div>
   );
 
-  const ResultModal = () => (
-    <div className="result-modal">
-      <div className="result-modal-content">
-        <button className="close-modal" onClick={() => setShowResultModal(false)}>
-          <X size={20} />
-        </button>
-        <h3>¡TUS FOTOS ESTÁN LISTAS!</h3>
+  const ResultModal = () => {
+    const createCollage = () => {
+      const collageCanvas = document.createElement('canvas');
+      const ctx = collageCanvas.getContext('2d');
 
-        <div className="photo-preview-container">
-          <img
-            src={capturedPhotos[currentPhotoIndex]}
-            alt={`Foto ${currentPhotoIndex + 1}`}
-            className="photo-preview"
-          />
+      const collageWidth = 800;
+      const collageHeight = 1200;
+      collageCanvas.width = collageWidth;
+      collageCanvas.height = collageHeight;
 
-          {capturedPhotos.length > 1 && (
-            <div className="photo-selector">
-              {capturedPhotos.map((_, index) => (
-                <button
-                  key={index}
-                  className={`selector-dot ${currentPhotoIndex === index ? 'active' : ''}`}
-                  onClick={() => setCurrentPhotoIndex(index)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, collageWidth, collageHeight);
 
-        <div className="action-buttons">
-          <button onClick={() => handlePhotoAction('download', capturedPhotos[currentPhotoIndex])}>
-            <Download size={16} /> DESCARGAR
+      const imagePromises = capturedPhotos.map((photoUrl, index) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.crossOrigin = 'Anonymous';
+          img.onload = () => {
+            ctx.drawImage(img, 0, index * (collageHeight / 3), collageWidth, collageHeight / 3);
+            resolve();
+          };
+          img.src = photoUrl;
+        });
+      });
+
+      return Promise.all(imagePromises).then(() => {
+        ctx.fillStyle = 'black';
+        ctx.font = '24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Evento del día de hoy de la Cosmo Cam', collageWidth / 2, collageHeight - 40);
+
+        return collageCanvas.toDataURL('image/jpeg');
+      });
+    };
+
+    const [collageImage, setCollageImage] = useState(null);
+
+    useEffect(() => {
+      if (capturedPhotos.length > 0) {
+        createCollage().then(setCollageImage);
+      }
+    }, [capturedPhotos]);
+
+    return (
+      <div className="result-modal">
+        <div className="result-modal-content">
+          <button className="close-modal" onClick={() => setShowResultModal(false)}>
+            <X size={20} />
           </button>
-          <button onClick={() => handlePhotoAction('print', capturedPhotos[currentPhotoIndex])}>
-            <Printer size={16} /> IMPRIMIR
-          </button>
-          <button onClick={() => handlePhotoAction('share', capturedPhotos[currentPhotoIndex])}>
-            <Share2 size={16} /> COMPARTIR
-          </button>
+          <h3>¡TUS FOTOS ESTÁN LISTAS!</h3>
+          <div className="photo-preview-container">
+            {collageImage ? (
+              <img
+                src={collageImage}
+                alt="Collage de fotos"
+                className="photo-preview"
+              />
+            ) : (
+              <p>Cargando collage...</p>
+            )}
+          </div>
+          <div className="action-buttons">
+            <button onClick={() => collageImage && handlePhotoAction('download', collageImage)}>
+              <Download size={16} /> DESCARGAR
+            </button>
+            <button onClick={() => collageImage && handlePhotoAction('print', collageImage)}>
+              <Printer size={16} /> IMPRIMIR
+            </button>
+            <button onClick={() => collageImage && handlePhotoAction('share', collageImage)}>
+              <Share2 size={16} /> COMPARTIR
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (showTutorial) {
     return (
@@ -420,24 +413,19 @@ const CabinaFotografica = () => {
   }
 
   return (
-    <div className="cabina-fotografica-container compact-view">
+    <div className="cabina-fotografica-container">
       {activeEffect === 'confetti' && <ConfettiEffect />}
       {showResultModal && <ResultModal />}
-
       <canvas ref={canvasRef} style={{ display: 'none' }} />
-
       <CabinaFotograficaAudio
         currentStep={currentStep}
         photosTaken={cameraState.photosTaken}
         onSubtitleChange={setSubtitle}
       />
-
       {subtitle && <div className="subtitle-display">{subtitle}</div>}
-
       <button className="close-fullscreen" onClick={() => navigate(-1)}>
         <X size={20} />
       </button>
-
       <header className="cabina-header">
         <h1 className="cabina-title">CABINA FOTOGRÁFICA</h1>
         <p className="cabina-subtitle">SISTEMA DE CAPTURA HOLOGRÁFICA</p>
@@ -447,7 +435,6 @@ const CabinaFotografica = () => {
           </p>
         )}
       </header>
-
       <div className="cabina-main-content">
         <div className="camera-container">
           <div className="camera-view">
@@ -455,12 +442,11 @@ const CabinaFotografica = () => {
               <div className="camera-error">
                 <X size={18} />
                 <span>{cameraState.error}</span>
-                <button className="retry-button" onClick={() => window.location.reload()}>
+                <button className="retry-button" onClick={loadAvailableCameras}>
                   REINTENTAR
                 </button>
               </div>
             )}
-
             <video
               ref={videoRef}
               className="video-stream"
@@ -472,7 +458,6 @@ const CabinaFotografica = () => {
                 transform: 'scaleX(-1)'
               }}
             />
-
             {cameraState.mask && (
               <div className="mask-container">
                 <img
@@ -489,25 +474,13 @@ const CabinaFotografica = () => {
                 />
               </div>
             )}
-
-            {!cameraState.stream && (
+            {!cameraState.stream && !cameraState.isLoading && (
               <div className="loading-state">
-                {cameraState.isLoading ? (
-                  <>
-                    <div className="spinner"></div>
-                    <p>INICIANDO CÁMARA...</p>
-                  </>
-                ) : (
-                  <>
-                    <Camera size={48} />
-                    <p>CÁMARA NO DISPONIBLE</p>
-                  </>
-                )}
+                <Camera size={48} />
+                <p>CÁMARA NO DISPONIBLE</p>
               </div>
             )}
-
             {cameraState.flashActive && <div className="flash active"></div>}
-
             {cameraState.showCountdown && (
               <div className="countdown-display">
                 <div className="countdown-message">{cameraState.countdownMessage}</div>
@@ -517,7 +490,6 @@ const CabinaFotografica = () => {
               </div>
             )}
           </div>
-
           <button
             className={`capture-button ${cameraState.isTakingPhotos ? 'processing' : ''}`}
             onClick={takePhotoSequence}
@@ -535,8 +507,7 @@ const CabinaFotografica = () => {
             )}
           </button>
         </div>
-
-        <div className="compact-controls">
+        <div className="controls-module">
           <div className="control-buttons-row">
             <button
               className="control-button"
@@ -546,7 +517,6 @@ const CabinaFotografica = () => {
               <Power size={18} />
               <span>{cameraState.isActive ? "DESACTIVAR" : "ACTIVAR"}</span>
             </button>
-
             {cameraState.availableCameras.length > 1 && (
               <button
                 className="control-button"
@@ -557,7 +527,6 @@ const CabinaFotografica = () => {
                 <span>CÁMARA</span>
               </button>
             )}
-
             <button
               className="control-button"
               onClick={() => setShowFilters(!showFilters)}
@@ -566,7 +535,6 @@ const CabinaFotografica = () => {
               <Image size={18} />
               <span>FILTROS</span>
             </button>
-
             <button
               className="control-button"
               onClick={() => setShowMasks(!showMasks)}
@@ -576,9 +544,8 @@ const CabinaFotografica = () => {
               <span>MÁSCARAS</span>
             </button>
           </div>
-
           {showFilters && (
-            <div className="options-section">
+            <div className="options-module">
               <h3><Smile size={16} /> FILTROS HOLOGRÁFICOS</h3>
               <div className="options-grid">
                 {FILTERS.map(filter => (
@@ -599,9 +566,8 @@ const CabinaFotografica = () => {
               </div>
             </div>
           )}
-
           {showMasks && (
-            <div className="options-section">
+            <div className="options-module">
               <h3><Smile size={16} /> MÓDULOS DE REALIDAD AUMENTADA</h3>
               <div className="options-grid">
                 {MASKS.map(mask => (
@@ -632,7 +598,6 @@ const CabinaFotografica = () => {
             </div>
           )}
         </div>
-
         <CabinaFotograficaGallery
           photos={recentPhotos}
           onPhotoSelect={(photo) => {
@@ -640,7 +605,6 @@ const CabinaFotografica = () => {
             setCurrentPhotoIndex(0);
             setShowResultModal(true);
           }}
-          compactView={true}
         />
       </div>
     </div>
